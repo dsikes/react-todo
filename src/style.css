@@ -1,0 +1,13 @@
+.App {
+  width: 15%;
+  margin: 10px 10px 10px 10px;
+}
+
+li {
+  list-style: none;
+}
+
+.left {
+  position: relative;
+  right: 40px;
+}
