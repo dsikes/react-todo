@@ -2,35 +2,27 @@ import React, { Component } from 'react';
 import './style.css';
 
 
-class TodoList extends Component {
+class CtrlInput extends Component {
 
   render() {
-    // map over the todo items in the global state
-    // provide a mechanism to remove specific items from the list
     return (
-      <ul className="left">
-      {
-        this.props.todos.map(todo => (
-
-          <li key={todo.key}>
-            <button id={todo.key} onClick={this.props.removeItem}>X</button>
-            {todo.item}
-          </li>
-        ))
-      }
-      </ul>
+      <div>
+      <button onClick={this.props.startClock}> Start </button>
+      <button onClick={this.props.stopClock}> Stop </button>
+      <button onClick={this.props.resetClock}> Reset </button>
+      </div>
     );
   }
 }
 
 
-class TodoInput extends Component {
+class Clock extends Component {
 
   render() {
     return (
       <div>
-      <input id='todoVal' type='text' placeholder='Enter Todo' onKeyPress={this.props.handleKeyPress}/> &nbsp;
-      <button onClick={this.props.addItem}> Add </button>
+      <Text>{this.props.time}</Text>
+      <p>Running: {this.props.status ? "Yes" : "No"}</p>
       </div>
     );
   }
@@ -46,11 +38,14 @@ class App extends Component {
     super(props);
 
     this.state = {
-      todos: []
+      run: false,
+      time: 0.00
     };
 
-    this.addItem = this.addItem.bind(this);
-    this.removeItem = this.removeItem.bind(this);
+    this.startClock = this.startClock.bind(this);
+    this.stopClock = this.stopClock.bind(this);
+    this.resetClock = this.resetClock.bind(this);
+    this.clock = this.clock.bind(this);
 
   }
 
@@ -60,44 +55,46 @@ class App extends Component {
      }
   }
 
-  addItem() {
-    let el = document.getElementById('todoVal');
+  startClock() {
+    this.setState({
+      run: true
+    }, this.clock);
 
-    if(el.value !== undefined && el.value !== "") {
-        let todo = {key: Math.random(), item: el.value}
-        // clear input after add...
-        el.value = "";
-
-        this.setState({
-          todos: [...this.state.todos, todo]
-        });
-        return false;
-    } else {
-      alert("Todo is required!");
-    }
   }
 
-  removeItem(e) {
-    // find and remove by key
-    // set new state to updated list
-
-    // e.target.id is a string, so multiply it by 1 to convert it to an int.
-    // tried using parseInt, and no love... why?
-    let todos = this.state.todos.filter(item => item.key !== e.target.id * 1);
-
+  stopClock() {
     this.setState({
-      todos: todos
+      run: false
     });
+  }
 
-    return false;
+  clock() {
+
+    if(this.state.run){
+      let time = this.state.time + .10;
+      this.setState({
+        time: time
+      });
+
+      // use recursion to increment time in 10 ms intervals
+      setTimeout(() => this.clock(), 10);
+    }
+
+  }
+
+  resetClock() {
+    this.setState({
+      run: false,
+      time: 0
+    });
   }
 
   render() {
     return (
       <div className="App">
-        <Text>Todo List</Text>
-        <TodoInput addItem={this.addItem} handleKeyPress={this.handleKeyPress}/>
-        <TodoList todos={this.state.todos} removeItem={this.removeItem}/>
+        <Text>Stop Watch</Text>
+        <Clock time={this.state.time.toFixed(2)} status={this.state.run}/>
+        <CtrlInput startClock={this.startClock} stopClock={this.stopClock} resetClock={this.resetClock}/>
       </div>
     );
   }
